@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { chartConfig, chartKeys } from "@/constants";
 import { StackedBarChart } from "@/components/ui/stacked-bar-chart";
+import { YearRangePicker } from "@/components/ui/year-range-picker";
 import { useMultipleDatasets } from "@/hooks/useDatasets";
 import { getDefaultDataset, getDatasetById, getAvailableComparisons } from "@/config/datasets";
 
@@ -23,6 +24,8 @@ export default function App() {
   const [comparisonDatasetId, setComparisonDatasetId] = useState<string | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [hiddenTechnologies, setHiddenTechnologies] = useState<Set<string>>(new Set());
+  const [startYear, setStartYear] = useState<number>(2023);
+  const [endYear, setEndYear] = useState<number>(2050);
   
   // Build the list of datasets to fetch
   const datasetsToFetch = comparisonDatasetId 
@@ -32,7 +35,7 @@ export default function App() {
   // Fetch datasets
   const { datasets, isLoading, isError, error } = useMultipleDatasets(
     datasetsToFetch,
-    { startYear: 2023, endYear: 2025 }
+    { startYear, endYear }
   );
 
   const availableComparisons = getAvailableComparisons(defaultDataset.id);
@@ -98,9 +101,28 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center container mx-auto p-4">
-      {/* Dropdown for comparison selection */}
-      <div className="w-full mb-6">
-        <div className="flex justify-start">
+      {/* Title */}
+      <div className="w-full mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{defaultDataset.name}</h1>
+        <p className="text-gray-600">
+          Total Operating Capacity from {startYear} to {endYear}
+        </p>
+      </div>
+
+      {/* Controls */}
+      <div className="w-full mb-6 flex justify-between items-center">
+        {/* Year Range Picker */}
+        <YearRangePicker
+          startYear={startYear}
+          endYear={endYear}
+          onStartYearChange={setStartYear}
+          onEndYearChange={setEndYear}
+          minYear={2023}
+          maxYear={2050}
+        />
+
+        {/* Comparison Dropdown */}
+        <div className="flex justify-end">
           <Select 
             value={comparisonDatasetId || "none"} 
             onValueChange={(value) => setComparisonDatasetId(value === "none" ? null : value)}
