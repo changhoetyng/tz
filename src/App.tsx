@@ -3,7 +3,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -22,6 +21,7 @@ import { getDefaultDataset, getDatasetById, getAvailableComparisons } from "@/co
 export default function App() {
   const defaultDataset = getDefaultDataset();
   const [comparisonDatasetId, setComparisonDatasetId] = useState<string | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   
   // Build the list of datasets to fetch
   const datasetsToFetch = comparisonDatasetId 
@@ -134,6 +134,10 @@ export default function App() {
               data={defaultData}
               keys={chartKeys}
               config={chartConfig}
+              syncedHoverIndex={hoveredIndex}
+              onHoverChange={setHoveredIndex}
+              comparisonData={comparisonDatasetId ? comparisonData : undefined}
+              chartTitle={defaultDataset.name}
             />
           </CardContent>
         </Card>
@@ -159,6 +163,10 @@ export default function App() {
                 data={comparisonData}
                 keys={chartKeys}
                 config={chartConfig}
+                syncedHoverIndex={hoveredIndex}
+                onHoverChange={setHoveredIndex}
+                comparisonData={defaultData}
+                chartTitle={getDatasetById(comparisonDatasetId)?.name}
               />
             </CardContent>
           </Card>
