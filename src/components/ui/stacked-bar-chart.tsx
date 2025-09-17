@@ -13,21 +13,25 @@ const CustomTooltip = ({ active, payload, label, config, comparisonData, chartTi
     return null;
   }
 
-  // Calculate total MW
-  const total = payload.reduce((sum: number, item: any) => sum + (item.value || 0), 0);
-  
-  // Format number with K suffix for thousands
+  // Format number with K suffix for thousands - consistent formatting
   const formatValue = (value: number) => {
     if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}K MW`;
+      const kValue = value / 1000;
+      // Show 1 decimal place, remove trailing zeros
+      const formatted = kValue.toFixed(1);
+      return `${parseFloat(formatted)}K MW`;
     }
-    return `${Math.round(value)} MW`;
+    // For values under 1000, show 1 decimal place
+    return `${value.toFixed(1)} MW`;
   };
 
   // Sort payload by value (descending) to match your design
   const sortedPayload = [...payload]
     .filter((item: any) => item.value > 0) // Only show non-zero values
     .sort((a: any, b: any) => b.value - a.value);
+
+  // Calculate total MW - simple sum
+  const total = payload.reduce((sum: number, item: any) => sum + (item.value || 0), 0);
 
   // Find comparison data for the same year if available
   const comparisonDataPoint = comparisonData?.find((d: any) => d.x === label);
@@ -80,6 +84,7 @@ const CustomTooltip = ({ active, payload, label, config, comparisonData, chartTi
           );
         })}
       </div>
+      
     </div>
   );
 };
