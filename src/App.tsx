@@ -22,6 +22,7 @@ export default function App() {
   const defaultDataset = getDefaultDataset();
   const [comparisonDatasetId, setComparisonDatasetId] = useState<string | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hiddenTechnologies, setHiddenTechnologies] = useState<Set<string>>(new Set());
   
   // Build the list of datasets to fetch
   const datasetsToFetch = comparisonDatasetId 
@@ -79,6 +80,21 @@ export default function App() {
 
   const defaultData = defaultDatasetResult?.data?.data || [];
   const comparisonData = comparisonDatasetResult?.data?.data || [];
+
+  // Note: We don't filter keys anymore, we use hiddenTechnologies to control visibility
+
+  // Handle legend click to toggle technology visibility
+  const handleLegendClick = (dataKey: string) => {
+    setHiddenTechnologies(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dataKey)) {
+        newSet.delete(dataKey);
+      } else {
+        newSet.add(dataKey);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center container mx-auto p-4">
@@ -138,6 +154,8 @@ export default function App() {
               onHoverChange={setHoveredIndex}
               comparisonData={comparisonDatasetId ? comparisonData : undefined}
               chartTitle={defaultDataset.name}
+              onLegendClick={handleLegendClick}
+              hiddenTechnologies={hiddenTechnologies}
             />
           </CardContent>
         </Card>
@@ -167,10 +185,44 @@ export default function App() {
                 onHoverChange={setHoveredIndex}
                 comparisonData={defaultData}
                 chartTitle={getDatasetById(comparisonDatasetId)?.name}
+                onLegendClick={handleLegendClick}
+                hiddenTechnologies={hiddenTechnologies}
               />
             </CardContent>
           </Card>
         )}
+      </div>
+
+      {/* Shared Legend - always shown */}
+      <div className="mt-6 flex justify-center">
+        <div className="grid grid-cols-6 font-normal gap-2">
+          {chartKeys.map((key) => {
+            const isHidden = hiddenTechnologies?.has(key);
+            const itemConfig = chartConfig[key];
+            
+            return (
+              <button
+                key={key}
+                className={`flex items-center gap-2 text-xs transition-all duration-200 hover:opacity-80 cursor-pointer p-1 rounded ${
+                  isHidden ? "opacity-40" : "opacity-100"
+                }`}
+                onClick={() => handleLegendClick(key)}
+              >
+                <div
+                  className="w-3 h-3 rounded-sm flex-shrink-0"
+                  style={{ 
+                    backgroundColor: isHidden ? '#d1d5db' : (itemConfig?.color)
+                  }}
+                />
+                <span className={`text-muted-foreground truncate ${
+                  isHidden ? "line-through text-gray-400" : ""
+                }`}>
+                  {itemConfig?.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

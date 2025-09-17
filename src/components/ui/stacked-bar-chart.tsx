@@ -1,8 +1,7 @@
+import React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
@@ -94,6 +93,8 @@ interface StackedBarChartProps
   onHoverChange?: (index: number | null) => void;
   comparisonData?: { x: number; [key: string]: number }[];
   chartTitle?: string;
+  onLegendClick?: (dataKey: string) => void;
+  hiddenTechnologies?: Set<string>;
 }
 
 export function StackedBarChart({
@@ -105,6 +106,8 @@ export function StackedBarChart({
   onHoverChange,
   comparisonData,
   chartTitle,
+  onLegendClick,
+  hiddenTechnologies,
   ...props
 }: StackedBarChartProps) {
   return (
@@ -136,17 +139,13 @@ export function StackedBarChart({
         />
         <YAxis tickLine={false} tickMargin={10} axisLine={false} />
         <ChartTooltip content={<CustomTooltip config={config} comparisonData={comparisonData} chartTitle={chartTitle} />} />
-        <ChartLegend
-          content={
-            <ChartLegendContent className="grid grid-cols-6 font-normal gap-2 mt-6" />
-          }
-        />
         {keys.map((key) => (
           <Bar
             key={key}
             dataKey={key}
             stackId="a"
             fill={`var(--color-${key})`}
+            hide={hiddenTechnologies?.has(key)}
           />
         ))}
       </BarChart>
